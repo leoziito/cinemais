@@ -3,1475 +3,734 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CINE+</title>
+    <title>CINELEVI Watch Party</title>
+    <!-- Tailwind CSS CDN for modern and responsive styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body {
             font-family: 'Inter', sans-serif;
             background-color: #000;
             color: #fff;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            /* Prevents horizontal scrolling */
+            overflow-x: hidden;
         }
-        .container {
+
+        /* Custom styles for the sidebar menu */
+        .sidebar {
             width: 100%;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 1rem;
-            box-sizing: border-box;
-            background-color: #000;
-            position: relative;
-        }
-        .loading-container {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            z-index: 100;
-        }
-        .loading-dots {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .loading-dot {
-            width: 10px;
-            height: 10px;
-            background-color: #fff;
-            border-radius: 50%;
-            margin: 0 4px;
-            animation: bounce 0.6s infinite alternate;
-        }
-        .loading-dot:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-        .loading-dot:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-        @keyframes bounce {
-            from {
-                transform: translateY(0);
-            }
-            to {
-                transform: translateY(-10px);
-            }
-        }
-        .hidden {
-            display: none;
-        }
-        .float-button {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            width: 60px;
-            height: 60px;
-            background-color: #fff;
-            color: #000;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 24px;
-            box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1);
-            cursor: pointer;
-            z-index: 50;
-        }
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.1);
-            }
-            100% {
-                transform: scale(1);
-            }
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 100;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.8);
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background-color: #1a1a1a;
-            margin: auto;
-            padding: 1.5rem;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-        .modal-close {
-            color: #fff;
-            align-self: flex-end;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .profile-pic-preview {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background-color: #333;
-            border: 2px solid #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 2rem;
-            color: #888;
-            overflow: hidden;
-            object-fit: cover;
-        }
-        /* Estilo para a sala, conforme a imagem */
-        .room-container {
-            width: 100%;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            background-color: #000;
-            padding: 1rem;
-            box-sizing: border-box;
-        }
-        .room-header .title {
-            font-size: 1.5rem;
-            font-weight: bold;
-            text-align: center;
-        }
-        .video-player {
-            width: 100%;
-            height: 200px;
-            background-color: #222;
-            border-radius: 10px;
-            margin-bottom: 1rem;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .room-controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            margin-bottom: 1rem;
-        }
-        .room-controls .user-count {
-            display: flex;
-            align-items: center;
-            font-size: 1rem;
-        }
-        .room-controls .mp4-input {
-            background-color: #222;
-            color: #fff;
-            border: 1px solid #444;
-            padding: 0.5rem;
-            border-radius: 5px;
-            flex-grow: 1;
-            margin: 0 1rem;
-        }
-        .room-controls .exit-button {
-            background-color: #ff0000;
-            color: #fff;
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-        }
-        .chat-container {
-            flex-grow: 1;
-            width: 100%;
-            background-color: #111;
-            border-radius: 10px;
-            overflow-y: auto;
-            padding: 1rem;
-            display: flex;
-            flex-direction: column;
-        }
-        /* Estilos do CineSynk adaptados para preto e branco */
-        .lobby-item { animation: fadeIn 0.3s ease forwards; background-color: #111; border-radius: 10px; padding: 1rem; cursor: pointer; transition: background-color 0.2s ease; }
-        .lobby-item:hover { background-color: #222; }
-        .video-container { position: relative; background: #000; overflow: hidden; border-radius: 10px; }
-        .player-controls { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); padding: 1rem; display: flex; flex-direction: column; opacity: 0; transition: opacity 0.3s ease; z-index: 21; }
-        .video-container:hover .player-controls, .video-container.controls-visible .player-controls { opacity: 1; }
-        .progress-container { width: 100%; height: 6px; background: rgba(255,255,255,0.3); margin-bottom: 8px; cursor: pointer; border-radius: 3px; }
-        .progress-bar { height: 100%; background: #fff; width: 0; position: relative; border-radius: 3px; }
-        .chat-messages-box::-webkit-scrollbar { width: 6px; }
-        .chat-messages-box::-webkit-scrollbar-track { background: #111; }
-        .chat-messages-box::-webkit-scrollbar-thumb { background: #555; border-radius: 3px; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .modal-content, .lobby-item, .chat-message { animation: fadeIn 0.3s ease forwards; }
-        video::-webkit-media-controls { display: none !important; }
-        video { pointer-events: none; }
-        
-        .drawer {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 75%;
             max-width: 300px;
-            height: 100vh;
-            background-color: #111;
-            z-index: 150;
             transform: translateX(-100%);
             transition: transform 0.3s ease-in-out;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
-            display: flex;
-            flex-direction: column;
+            z-index: 50;
         }
-        .drawer.open {
+
+        .sidebar.open {
             transform: translateX(0);
         }
-        .drawer-backdrop {
-            position: fixed;
-            top: 0;
-            left: 0;
+
+        .video-player {
             width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 140;
-            display: none;
+            aspect-ratio: 16 / 9;
+            background-color: #1a1a1a;
+            border-radius: 0.5rem;
         }
-        .search-box {
-            display: none;
-            width: 100%;
-            padding: 1rem;
-            background-color: #000;
-            border-bottom: 1px solid #111;
+
+        .loading-icon {
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-top: 4px solid #fff;
+            border-radius: 50%;
+            width: 1.5rem;
+            height: 1.5rem;
+            animation: spin 1s linear infinite;
         }
-        .search-box.open {
-            display: flex;
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
-        .tmdb-search-results {
-            max-height: 400px;
-            overflow-y: auto;
+
+        /* Custom scrollbar for the chat container */
+        .chat-container::-webkit-scrollbar {
+            width: 8px;
         }
-        .tmdb-search-results::-webkit-scrollbar {
-            width: 6px;
-        }
-        .tmdb-search-results::-webkit-scrollbar-track {
+
+        .chat-container::-webkit-scrollbar-track {
             background: #1a1a1a;
-        }
-        .tmdb-search-results::-webkit-scrollbar-thumb {
-            background: #444;
-            border-radius: 3px;
-        }
-        .room-card {
-            background-color: #111;
             border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-            position: relative;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
         }
-        .room-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+
+        .chat-container::-webkit-scrollbar-thumb {
+            background-color: #4a4a4a;
+            border-radius: 10px;
+            border: 2px solid #1a1a1a;
         }
-        .room-card-banner {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-            background-color: #222;
-        }
-        .room-card-content {
-            padding: 1rem;
+
+        /* Mobile specific styles to prevent horizontal scroll */
+        .app-content {
+            padding-top: 60px; /* Adjust for fixed header */
         }
     </style>
 </head>
-<body>
+<body class="bg-black text-white antialiased">
 
-<!-- Firebase SDKs -->
-<script type="module">
-    // Módulo de Autenticação e Firestore do Firebase
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, collection, query, where, addDoc, onSnapshot, updateDoc, deleteDoc, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-    
-    // Configuração do Firebase fornecida pelo usuário
-    const firebaseConfig = {
-      apiKey: "AIzaSyCwXmFdisa9PtBuoIT8OC7j_t-zyK_UBsQ",
-      authDomain: "watch-c75c7.firebaseapp.com",
-      projectId: "watch-c75c7",
-      storageBucket: "watch-c75c7.firebasestorage.app",
-      messagingSenderId: "19147784003",
-      appId: "1:19147784003:web:9f29e686b204c32e3ff9f6"
-    };
-
-    // Chaves de API e URL do ImgBB e TMDb
-    const IMGBB_API_KEY = "9a792281a6220ed358215ad0c1e4162e";
-    const IMGBB_UPLOAD_URL = "https://api.imgbb.com/1/upload";
-    const TMDB_API_KEY = "d0f7e2c414b1efff7b000ae9b681ed1b";
-    const TMDB_BASE_URL = "https://api.themoviedb.org/3";
-    const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
-    
-    // Inicializar Firebase
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
-    let myName = '', myAvatar = '';
-    let currentUserId = null;
-    let currentRoom = '';
-    let isHost = false;
-    let roomUnsubscribe = null;
-    let usersUnsubscribe = null;
-    let chatUnsubscribe = null;
-    let publicRoomsUnsubscribe = null;
-    let lastHostSyncTime = 0;
-    let seeking = false;
-    let tmdbAbortController = null;
-
-    // Elementos da UI
-    const loginScreen = document.getElementById('login-screen');
-    const profileScreen = document.getElementById('profile-screen');
-    const lobbyScreen = document.getElementById('lobby-screen');
-    const createRoomScreen = document.getElementById('create-room-screen');
-    const roomScreen = document.getElementById('room-screen');
-    const loadingContainer = document.getElementById('loading-container');
-    const loginForm = document.getElementById('login-form');
-    const createAccountForm = document.getElementById('create-account-form');
-    const profileForm = document.getElementById('profile-form');
-    const profilePicInput = document.getElementById('profile-pic-input');
-    const profilePicPreview = document.getElementById('profile-pic-preview');
-    const lobbyRoomsList = document.getElementById('lobby-rooms-list');
-    const roomTitle = document.getElementById('room-title');
-    const roomIdSpan = document.getElementById('room-id-span');
-    const copyRoomIdBtn = document.getElementById('copy-room-id-btn');
-    const roomExitButton = document.getElementById('room-exit-button');
-    const chatBox = document.getElementById('chat-messages-box');
-    const chatForm = document.getElementById('chat-form');
-    const msgInput = document.getElementById('msg-input');
-    const video = document.getElementById('video');
-    const videoContainer = document.getElementById('video-container');
-    const urlInput = document.getElementById('url-input');
-    const loadVideoBtn = document.getElementById('load-video-btn');
-    const playPauseBtn = document.getElementById('play-pause-btn');
-    const progressContainer = document.getElementById('progress-container');
-    const progressBar = document.getElementById('progress-bar');
-    const currentTimeDisplay = document.getElementById('current-time');
-    const durationDisplay = document.getElementById('duration');
-    const onlineCountBtn = document.getElementById('online-count-btn');
-    
-    const loginScreenBtn = document.getElementById('login-screen-btn');
-    const createAccountBtn = document.getElementById('create-account-btn');
-    const searchForm = document.getElementById('search-form');
-    const searchInput = document.getElementById('search-input');
-    const searchBtn = document.getElementById('search-btn');
-    const searchBox = document.getElementById('search-box');
-    const closeSearchBtn = document.getElementById('close-search-btn');
-    const openDrawerBtn = document.getElementById('open-drawer-btn');
-    const drawer = document.getElementById('drawer');
-    const drawerBackdrop = document.getElementById('drawer-backdrop');
-    const drawerProfilePic = document.getElementById('drawer-profile-pic');
-    const drawerUsername = document.getElementById('drawer-username');
-    const drawerUid = document.getElementById('drawer-uid');
-    const logoutBtn = document.getElementById('logout-btn');
-    const editProfileBtn = document.getElementById('edit-profile-btn');
-    const createRoomBtnLobby = document.getElementById('create-room-btn-lobby');
-    const createRoomBackButton = document.getElementById('create-room-back-btn');
-    const joinRoomForm = document.getElementById('join-room-form');
-    const joinRoomInput = document.getElementById('join-room-input');
-    const tmdbSearchInput = document.getElementById('tmdb-search-input');
-    const tmdbSearchResults = document.getElementById('tmdb-search-results');
-    const createRoomForm = document.getElementById('create-room-form');
-    const createRoomNameInput = document.getElementById('create-room-name-input');
-    const createRoomBannerInput = document.getElementById('create-room-banner-input');
-    const createRoomVisibilityPublic = document.getElementById('visibility-public');
-    const fullscreenBtn = document.getElementById('fullscreen-btn');
-    const forceSyncBtn = document.getElementById('force-sync-btn');
-    const urlInputContainer = document.getElementById('url-input-container');
-
-    // Funções de controle da interface
-    const showLoading = () => { if (loadingContainer) loadingContainer.style.display = 'flex'; };
-    const hideLoading = () => { if (loadingContainer) loadingContainer.style.display = 'none'; };
-
-    const showScreen = (screen) => {
-        if (loginScreen) loginScreen.classList.add('hidden');
-        if (profileScreen) profileScreen.classList.add('hidden');
-        if (lobbyScreen) lobbyScreen.classList.add('hidden');
-        if (createRoomScreen) createRoomScreen.classList.add('hidden');
-        if (roomScreen) roomScreen.classList.add('hidden');
-        if (screen) screen.classList.remove('hidden');
-    };
-    
-    function showNotification(message, type = "error") {
-        const notification = document.getElementById('notification');
-        if (!notification) return;
-        notification.textContent = message;
-        notification.className = `fixed top-5 right-5 text-white py-2 px-5 rounded-lg shadow-lg z-[100] opacity-0 ${type === 'success' ? 'bg-green-500' : (type === 'info' ? 'bg-blue-500' : 'bg-red-500')}`;
-        notification.style.opacity = 1;
-        notification.style.transform = 'translateY(0)';
-        setTimeout(() => { notification.style.opacity = 0; notification.style.transform = 'translateY(-50px)'; }, 3000);
-    }
-    
-    const updateUIForRole = () => {
-        if (!urlInput || !playPauseBtn || !progressContainer || !loadVideoBtn || !urlInputContainer) return; 
-        const isEnabled = isHost;
-        urlInputContainer.style.display = isEnabled ? 'flex' : 'none';
-        playPauseBtn.disabled = !isEnabled;
-        loadVideoBtn.disabled = !isEnabled;
-        progressContainer.style.pointerEvents = isEnabled ? 'auto' : 'none';
-        
-        if (isEnabled) {
-            urlInput.placeholder = "Host: cole o link do vídeo (MP4) aqui...";
-        } else {
-            urlInput.placeholder = "Aguardando o host..."
-        }
-    };
-    
-    // Autenticação e mudança de tela
-    onAuthStateChanged(auth, async (user) => {
-        showLoading();
-        if (user) {
-            currentUserId = user.uid;
-            console.log(`Usuário autenticado: ${currentUserId}`);
-            
-            const userProfileRef = doc(db, 'users', currentUserId);
-            
-            try {
-                const userProfileSnap = await getDoc(userProfileRef);
-                const profileData = userProfileSnap.data();
-                
-                if (profileData && profileData.username) {
-                    myName = profileData.username;
-                    myAvatar = profileData.photoURL || '';
-                    if (drawerProfilePic) drawerProfilePic.src = myAvatar || 'https://placehold.co/80x80/333/fff?text=P';
-                    if (drawerUsername) drawerUsername.textContent = myName;
-                    if (drawerUid) drawerUid.textContent = `UID: ${currentUserId}`;
-                    showScreen(lobbyScreen);
-                    fetchPublicRooms();
-                } else {
-                    showScreen(profileScreen);
-                }
-            } catch (error) {
-                console.error("Erro ao buscar dados do perfil:", error);
-                showScreen(profileScreen);
-            }
-        } else {
-            showScreen(loginScreen);
-        }
-        hideLoading();
-    });
-
-    // Funções de autenticação
-    if (loginForm) {
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = e.target.email.value;
-            const password = e.target.password.value;
-            showLoading();
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-            } catch (error) {
-                console.error("Erro de login:", error);
-                showNotification("Erro ao fazer login. Verifique seu e-mail e senha.");
-            } finally {
-                hideLoading();
-            }
-        });
-    }
-
-    if (createAccountBtn) {
-        createAccountBtn.addEventListener('click', () => {
-            if (loginForm) loginForm.classList.add('hidden');
-            if (createAccountForm) createAccountForm.classList.remove('hidden');
-        });
-    }
-
-    if (loginScreenBtn) {
-        loginScreenBtn.addEventListener('click', () => {
-            if (loginForm) loginForm.classList.remove('hidden');
-            if (createAccountForm) createAccountForm.classList.add('hidden');
-        });
-    }
-
-    if (createAccountForm) {
-        createAccountForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = e.target.email.value;
-            const password = e.target.password.value;
-            showLoading();
-            try {
-                await createUserWithEmailAndPassword(auth, email, password);
-            } catch (error) {
-                console.error("Erro ao criar conta:", error);
-                showNotification("Erro ao criar conta. Tente novamente.");
-            } finally {
-                hideLoading();
-            }
-        });
-    }
-
-    // Perfil
-    if (profilePicInput) {
-        profilePicInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    if (profilePicPreview) {
-                        profilePicPreview.src = e.target.result;
-                        profilePicPreview.classList.remove('hidden');
-                        profilePicPreview.style.display = 'block';
-                    }
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-    if (profileForm) {
-        profileForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const username = e.target.username.value;
-            const file = profilePicInput.files[0];
-            showLoading();
-
-            if (!currentUserId) {
-                console.error("Usuário não autenticado.");
-                showNotification("Erro: Usuário não autenticado. Faça login novamente.");
-                hideLoading();
-                return;
-            }
-            
-            try {
-                let photoURL = '';
-                if (file) {
-                    const formData = new FormData();
-                    formData.append("key", IMGBB_API_KEY);
-                    formData.append("image", file);
-
-                    const response = await fetch(IMGBB_UPLOAD_URL, {
-                        method: "POST",
-                        body: formData,
-                    });
-
-                    const result = await response.json();
-                    if (result.success) {
-                        photoURL = result.data.url;
-                    } else {
-                        throw new Error("Erro no upload do ImgBB");
-                    }
-                }
-
-                const userProfileRef = doc(db, 'users', currentUserId);
-                await setDoc(userProfileRef, {
-                    username: username,
-                    photoURL: photoURL
-                });
-                
-                myName = username;
-                myAvatar = photoURL;
-                if (drawerProfilePic) drawerProfilePic.src = myAvatar || 'https://placehold.co/80x80/333/fff?text=P';
-                if (drawerUsername) drawerUsername.textContent = myName;
-                if (drawerUid) drawerUid.textContent = `UID: ${currentUserId}`;
-                showScreen(lobbyScreen);
-                fetchPublicRooms();
-            } catch (error) {
-                console.error("Erro ao salvar perfil:", error);
-                showNotification("Erro ao salvar perfil. Tente novamente.");
-            } finally {
-                hideLoading();
-            }
-        });
-    }
-    
-    // Lógica do Lobby
-    const fetchPublicRooms = (searchTerm = '') => {
-        if (publicRoomsUnsubscribe) {
-            publicRoomsUnsubscribe();
-        }
-
-        const publicRoomsRef = collection(db, 'public_rooms');
-        publicRoomsUnsubscribe = onSnapshot(publicRoomsRef, (snapshot) => {
-            if (lobbyRoomsList) lobbyRoomsList.innerHTML = '';
-            let filteredDocs = snapshot.docs;
-            if (searchTerm) {
-                const lowerSearchTerm = searchTerm.toLowerCase();
-                filteredDocs = filteredDocs.filter(doc => doc.data().name.toLowerCase().includes(lowerSearchTerm));
-            }
-
-            if (filteredDocs.length === 0) {
-                if (lobbyRoomsList) lobbyRoomsList.innerHTML = '<p class="text-neutral-500 text-sm text-center py-4">Nenhuma sala encontrada.</p>';
-                return;
-            }
-
-            filteredDocs.forEach((doc) => {
-                const room = doc.data();
-                const roomId = doc.id;
-                
-                const bannerUrl = room.bannerUrl || 'https://placehold.co/600x338/222/555?text=Sem+Banner';
-                
-                const roomItem = document.createElement('div');
-                roomItem.className = 'room-card';
-                roomItem.innerHTML = `
-                    <img src="${bannerUrl}" alt="Banner da Sala" class="room-card-banner"/>
-                    <div class="room-card-content">
-                        <h3 class="text-lg font-bold text-white mb-2 truncate">${room.name}</h3>
-                        <p class="text-sm text-neutral-400">Host: ${room.hostName}</p>
-                        <div class="flex items-center gap-1 text-sm text-neutral-400 mt-2">
-                            <i class="fas fa-user-friends"></i>
-                            <span>${room.userCount || 0} Membros</span>
-                        </div>
-                    </div>
-                `;
-                roomItem.addEventListener('click', () => enterRoom(roomId));
-                if (lobbyRoomsList) lobbyRoomsList.appendChild(roomItem);
-            });
-        });
-    };
-
-    // Lógica da pesquisa
-    if (searchForm) {
-        searchForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const searchTerm = searchInput.value.trim();
-            fetchPublicRooms(searchTerm);
-        });
-    }
-    if (searchBtn) {
-        searchBtn.addEventListener('click', () => {
-            if (searchBox) searchBox.classList.toggle('open');
-            if (searchInput) searchInput.focus();
-        });
-    }
-    if (closeSearchBtn) {
-        closeSearchBtn.addEventListener('click', () => {
-            if (searchBox) searchBox.classList.remove('open');
-            if (searchInput) searchInput.value = '';
-            fetchPublicRooms();
-        });
-    }
-
-    // Lógica de "Entrar por ID"
-    if (joinRoomForm) {
-        joinRoomForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const roomId = joinRoomInput.value.trim();
-            if (roomId) {
-                const roomDocRef = doc(db, 'rooms', roomId);
-                const roomDocSnap = await getDoc(roomDocRef);
-                if (roomDocSnap.exists()) {
-                    enterRoom(roomId);
-                } else {
-                    showNotification("Sala não encontrada. Verifique o ID.");
-                }
-            }
-        });
-    }
-    
-    // Lógica da tela de criar sala
-    if (createRoomBtnLobby) {
-        createRoomBtnLobby.addEventListener('click', () => {
-            showScreen(createRoomScreen);
-        });
-    }
-    if (createRoomBackButton) {
-        createRoomBackButton.addEventListener('click', () => {
-            showScreen(lobbyScreen);
-        });
-    }
-
-    if (createRoomForm) {
-        createRoomForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const roomName = createRoomNameInput.value.trim();
-            const isPublic = document.getElementById('visibility-public').checked;
-            const bannerUrl = createRoomBannerInput.value.trim() || '';
-            const videoUrl = document.getElementById('create-room-video-url-input').value.trim() || '';
-
-            if (!roomName) {
-                showNotification('Por favor, insira o nome da sala.');
-                return;
-            }
-            if (!currentUserId) {
-                showNotification("Erro: Usuário não autenticado. Faça login novamente.");
-                return;
-            }
-            
-            showLoading();
-            try {
-                const roomsColRef = collection(db, 'rooms');
-                const newRoomDocRef = await addDoc(roomsColRef, {
-                    name: roomName,
-                    hostId: currentUserId,
-                    hostName: myName,
-                    videoUrl: videoUrl,
-                    bannerUrl: bannerUrl,
-                    isPublic: isPublic,
-                    status: { action: 'pause', time: 0 },
-                    createdAt: serverTimestamp()
-                });
-                const newRoomId = newRoomDocRef.id;
-
-                if (isPublic) {
-                    const publicRoomsColRef = collection(db, 'public_rooms');
-                    await setDoc(doc(publicRoomsColRef, newRoomId), {
-                        name: roomName,
-                        hostId: currentUserId,
-                        hostName: myName,
-                        hostAvatar: myAvatar,
-                        userCount: 0,
-                        bannerUrl: bannerUrl,
-                    });
-                }
-                
-                showScreen(lobbyScreen);
-                enterRoom(newRoomId, true);
-            } catch (error) {
-                console.error("Erro ao criar sala:", error);
-                showNotification("Erro ao criar sala. Tente novamente.");
-            } finally {
-                hideLoading();
-            }
-        });
-    }
-    
-    // Lógica de pesquisa do TMDb
-    let tmdbSearchTimeout;
-    if (tmdbSearchInput) {
-        tmdbSearchInput.addEventListener('input', () => {
-            clearTimeout(tmdbSearchTimeout);
-            const query = tmdbSearchInput.value.trim();
-            if (query.length > 2) {
-                tmdbSearchTimeout = setTimeout(() => {
-                    searchTmdb(query);
-                }, 500);
-            } else {
-                if (tmdbSearchResults) tmdbSearchResults.innerHTML = '';
-            }
-        });
-    }
-    
-
-    async function searchTmdb(query) {
-        if (tmdbAbortController) {
-            tmdbAbortController.abort();
-        }
-        tmdbAbortController = new AbortController();
-        const signal = tmdbAbortController.signal;
-        
-        const url = `${TMDB_BASE_URL}/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&language=pt-BR`;
-        try {
-            const response = await fetch(url, { signal });
-            if (!response.ok) throw new Error('Network response was not ok.');
-            const data = await response.json();
-            displayTmdbResults(data.results);
-        } catch (error) {
-            if (error.name === 'AbortError') {
-                console.log('Fetch aborted');
-            } else {
-                console.error("Erro ao buscar no TMDb:", error);
-                showNotification("Erro ao buscar no TMDb.", "error");
-            }
-        } finally {
-            tmdbAbortController = null;
-        }
-    }
-
-    function displayTmdbResults(results) {
-        if (!tmdbSearchResults) return;
-        tmdbSearchResults.innerHTML = '';
-        results.filter(result => (result.media_type === 'movie' || result.media_type === 'tv') && result.poster_path).forEach(result => {
-            const resultItem = document.createElement('div');
-            resultItem.className = 'flex items-start gap-4 p-3 mb-2 bg-neutral-900 rounded-lg cursor-pointer hover:bg-neutral-800';
-            resultItem.innerHTML = `
-                <img src="${TMDB_IMAGE_BASE_URL + result.poster_path}" alt="${result.title || result.name}" class="w-16 h-24 object-cover rounded-lg"/>
-                <div class="flex-1">
-                    <h4 class="font-bold text-white">${result.title || result.name}</h4>
-                    <p class="text-xs text-neutral-400 mt-1">${result.overview || 'Sinopse não disponível.'}</p>
-                </div>
-            `;
-            resultItem.addEventListener('click', () => {
-                if (createRoomNameInput) createRoomNameInput.value = result.title || result.name;
-                if (createRoomBannerInput) createRoomBannerInput.value = TMDB_IMAGE_BASE_URL + result.backdrop_path;
-                if (tmdbSearchResults) tmdbSearchResults.innerHTML = '';
-                if (tmdbSearchInput) tmdbSearchInput.value = '';
-            });
-            tmdbSearchResults.appendChild(resultItem);
-        });
-    }
-
-    // Lógica do Chat
-    function renderChat(snapshot) {
-        if (!chatBox) return;
-        chatBox.innerHTML = '';
-        snapshot.forEach(doc => {
-            const msg = doc.data();
-            const div = document.createElement('div');
-            div.className = 'chat-message';
-            if (msg.userId === 'system') {
-                div.innerHTML = `<p class="text-center text-xs text-neutral-500 italic">${msg.text}</p>`;
-            } else {
-                div.className += ` flex items-start gap-3 p-2 rounded-lg ${msg.userId === currentUserId ? 'flex-row-reverse bg-neutral-800' : 'bg-neutral-900'}`;
-                div.innerHTML = `
-                    <img src="${msg.avatar || 'https://placehold.co/32x32/111/fff?text=P'}" class="w-8 h-8 rounded-full object-cover"/>
-                    <div class="${msg.userId === currentUserId ? 'text-right' : 'text-left'}">
-                        <p class="text-xs font-semibold ${msg.userId === currentUserId ? 'text-white' : 'text-white'}">${msg.userName}</p>
-                        <p class="text-sm">${msg.text}</p>
-                    </div>
-                `;
-            }
-            chatBox.appendChild(div);
-        });
-        chatBox.scrollTop = chatBox.scrollHeight;
-    }
-    
-    if (chatForm) {
-        chatForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const text = msgInput.value.trim();
-            if (text) {
-                try {
-                    const chatColRef = collection(db, 'rooms', currentRoom, 'chat');
-                    await addDoc(chatColRef, {
-                        userId: currentUserId,
-                        userName: myName,
-                        text: text,
-                        avatar: myAvatar,
-                        timestamp: serverTimestamp()
-                    });
-                    if (msgInput) msgInput.value = '';
-                } catch (error) {
-                    console.error("Erro ao enviar mensagem:", error);
-                    showNotification("Erro ao enviar mensagem.");
-                }
-            }
-        });
-    }
-
-    // Lógica da Sala e Sincronização
-    let syncInterval;
-    function enterRoom(roomId, isNew = false) {
-        if (roomUnsubscribe) roomUnsubscribe();
-        if (usersUnsubscribe) usersUnsubscribe();
-        if (chatUnsubscribe) chatUnsubscribe();
-        if (publicRoomsUnsubscribe) publicRoomsUnsubscribe();
-        clearInterval(syncInterval);
-        
-        showScreen(roomScreen);
-        currentRoom = roomId;
-
-        const roomDocRef = doc(db, 'rooms', roomId);
-        const usersColRef = collection(db, 'rooms', roomId, 'users');
-        const chatColRef = collection(db, 'rooms', roomId, 'chat');
-        const publicRoomDocRef = doc(db, 'public_rooms', roomId);
-
-        roomUnsubscribe = onSnapshot(roomDocRef, async (doc) => {
-            if (!doc.exists()) {
-                showNotification("A sala foi fechada.", "info");
-                handleLeaveRoom();
-                return;
-            }
-            const roomData = doc.data();
-            if (roomTitle) roomTitle.textContent = roomData.name;
-            if (roomIdSpan) roomIdSpan.textContent = roomId;
-            
-            isHost = roomData.hostId === currentUserId;
-            
-            if (urlInput) urlInput.value = roomData.videoUrl;
-
-            if (video && video.src !== roomData.videoUrl) {
-                video.src = roomData.videoUrl;
-                video.load();
-                if (isHost) {
-                   video.play();
-                   updateDoc(roomDocRef, { 'status.action': 'play' });
-                }
-            }
-            
-            if (!isHost) {
-                const data = roomData.status || {};
-                if (video && Math.abs(video.currentTime - data.time) > 1.5) {
-                    video.currentTime = data.time;
-                }
-                if (video && data.action === 'play' && video.paused) video.play().catch(e => console.error(e));
-                else if (video && data.action === 'pause' && !video.paused) video.pause();
-            }
-
-            updateUIForRole();
-        });
-        
-        const userDocRef = doc(usersColRef, currentUserId);
-        setDoc(userDocRef, { name: myName, avatar: myAvatar, timestamp: serverTimestamp() });
-        
-        let initialUserSnapshot = true;
-        usersUnsubscribe = onSnapshot(usersColRef, (snapshot) => {
-            const userCount = snapshot.size;
-            if (onlineCountBtn) {
-                     onlineCountBtn.innerHTML = `<i class="fas fa-user-friends"></i><span>${userCount}</span>`;
-            }
-            
-            if (isHost) {
-                const publicRoomDocRef = doc(db, 'public_rooms', currentRoom);
-                updateDoc(publicRoomDocRef, { userCount: userCount });
-            }
-
-            if (!initialUserSnapshot) {
-                const users = snapshot.docs.map(doc => doc.data());
-                const previousUsers = chatBox && chatBox.dataset.users ? JSON.parse(chatBox.dataset.users) : [];
-                
-                const newUsers = users.filter(user => !previousUsers.some(prevUser => prevUser.name === user.name));
-                const leftUsers = previousUsers.filter(prevUser => !users.some(user => user.name === prevUser.name));
-
-                newUsers.forEach(user => {
-                    const entryMessage = {
-                        userId: 'system',
-                        text: `${user.name} entrou na sala.`,
-                        timestamp: serverTimestamp()
-                    };
-                    addDoc(chatColRef, entryMessage);
-                });
-                leftUsers.forEach(user => {
-                    const exitMessage = {
-                        userId: 'system',
-                        text: `${user.name} saiu da sala.`,
-                        timestamp: serverTimestamp()
-                    };
-                    addDoc(chatColRef, exitMessage);
-                });
-                if (chatBox) chatBox.dataset.users = JSON.stringify(users);
-            } else {
-                if (chatBox) chatBox.dataset.users = JSON.stringify(snapshot.docs.map(doc => doc.data()));
-                initialUserSnapshot = false;
-            }
-
-            if (userCount === 0) {
-                if (isHost) {
-                    deleteDoc(roomDocRef);
-                    const publicRoomSnap = getDoc(publicRoomDocRef);
-                    if (publicRoomSnap.exists()) {
-                        deleteDoc(publicRoomDocRef);
-                    }
-                }
-            }
-        });
-
-        chatUnsubscribe = onSnapshot(query(chatColRef, where('timestamp', '!=', null)), renderChat);
-        
-        syncInterval = setInterval(() => {
-            if (isHost && video && !video.paused) {
-                const roomDocRef = doc(db, 'rooms', currentRoom);
-                updateDoc(roomDocRef, {
-                    'status.time': video.currentTime,
-                    'status.action': 'play'
-                });
-            }
-        }, 5000);
-    }
-    
-    async function handleLeaveRoom() {
-        if (!currentRoom) return;
-        
-        // Pausa e limpa o vídeo antes de sair da sala
-        if (video) {
-            video.pause();
-            video.src = '';
-            video.load();
-        }
-        
-        if (roomUnsubscribe) roomUnsubscribe();
-        if (usersUnsubscribe) usersUnsubscribe();
-        if (chatUnsubscribe) chatUnsubscribe();
-        clearInterval(syncInterval);
-        
-        const userDocRef = doc(db, 'rooms', currentRoom, 'users', currentUserId);
-        await deleteDoc(userDocRef);
-
-        const usersColRef = collection(db, 'rooms', currentRoom, 'users');
-        const usersSnap = await getDocs(usersColRef);
-        if (usersSnap.empty) {
-            if (isHost) {
-                await deleteDoc(doc(db, 'rooms', currentRoom));
-                const publicRoomDocRef = doc(db, 'public_rooms', currentRoom);
-                const publicRoomSnap = await getDoc(publicRoomDocRef);
-                if (publicRoomSnap.exists()) {
-                    await deleteDoc(publicRoomDocRef);
-                }
-            }
-        }
-        
-        showScreen(lobbyScreen);
-        fetchPublicRooms();
-        currentRoom = '';
-        isHost = false;
-    }
-    
-    const setupVideoPlayer = () => {
-        const formatTime = (seconds) => {
-            if (isNaN(seconds) || seconds < 0) return '0:00';
-            const minutes = Math.floor(seconds / 60);
-            return `${minutes}:${Math.floor(seconds % 60).toString().padStart(2, '0')}`;
-        };
-        
-        const syncStatus = (force) => {
-            if (isHost && video && video.duration) {
-                const roomDocRef = doc(db, 'rooms', currentRoom);
-                updateDoc(roomDocRef, {
-                    'status.time': video.currentTime,
-                    'status.action': video.paused ? 'pause' : 'play'
-                });
-            }
-        };
-
-        const seek = (delta) => {
-            if (isHost && video) {
-                video.currentTime += delta;
-                syncStatus(true);
-            }
-        };
-
-        if (video) {
-            video.addEventListener('timeupdate', () => {
-                if (!seeking && video.duration) {
-                    if (progressBar) progressBar.style.width = `${(video.currentTime / video.duration) * 100}%`;
-                    if (currentTimeDisplay) currentTimeDisplay.textContent = formatTime(video.currentTime);
-                    if (isHost && !video.paused && Date.now() - lastHostSyncTime > 2500) {
-                        syncStatus(false);
-                        lastHostSyncTime = Date.now();
-                    }
-                }
-            });
-            
-            video.addEventListener('durationchange', () => {
-                if (durationDisplay) durationDisplay.textContent = formatTime(video.duration);
-            });
-            
-            video.addEventListener('play', () => {
-                if (playPauseBtn) playPauseBtn.innerHTML = `<i class="fas fa-pause"></i>`;
-                syncStatus(true);
-            });
-            
-            video.addEventListener('pause', () => {
-                if (playPauseBtn) playPauseBtn.innerHTML = `<i class="fas fa-play"></i>`;
-                syncStatus(true);
-            });
-        }
-        
-        if (playPauseBtn) {
-            playPauseBtn.addEventListener('click', () => {
-                if (isHost && video) {
-                    video.paused ? video.play() : video.pause();
-                }
-            });
-        }
-
-        if (document.getElementById('rewind-btn')) {
-            document.getElementById('rewind-btn').addEventListener('click', () => seek(-10));
-        }
-        if (document.getElementById('forward-btn')) {
-            document.getElementById('forward-btn').addEventListener('click', () => seek(10));
-        }
-
-        const handleScrub = (e) => {
-            if (!progressContainer || !video) return;
-            const rect = progressContainer.getBoundingClientRect();
-            const newTime = Math.min(Math.max(0, (e.clientX - rect.left) / rect.width), 1) * video.duration;
-            video.currentTime = newTime;
-            if (progressBar) progressBar.style.width = `${(newTime / video.duration) * 100}%`;
-            if (currentTimeDisplay) currentTimeDisplay.textContent = formatTime(newTime);
-        };
-        
-        if (progressContainer) {
-            progressContainer.addEventListener('mousedown', (e) => {
-                if(isHost) {
-                    seeking = true;
-                    handleScrub(e);
-                }
-            });
-        }
-        
-        document.addEventListener('mousemove', (e) => {
-            if(isHost && seeking) {
-                handleScrub(e);
-            }
-        });
-        
-        document.addEventListener('mouseup', () => {
-            if(isHost && seeking) {
-                seeking = false;
-                syncStatus(true);
-            }
-        });
-
-        if (fullscreenBtn) {
-            fullscreenBtn.addEventListener('click', () => {
-                if (!document.fullscreenElement) {
-                    if (videoContainer) videoContainer.requestFullscreen().catch(err => {
-                        showNotification(`Erro ao tentar entrar em tela cheia: ${err.message}`);
-                    });
-                } else {
-                    document.exitFullscreen();
-                }
-            });
-        }
-
-        if (forceSyncBtn) {
-            forceSyncBtn.addEventListener('click', () => {
-                if (isHost) {
-                    showNotification("Você é o host, sua tela já está sincronizada.", "info");
-                    return;
-                }
-                const roomDocRef = doc(db, 'rooms', currentRoom);
-                const unsync = onSnapshot(roomDocRef, (doc) => {
-                    const roomData = doc.data();
-                    const data = roomData.status || {};
-                    if (video) video.currentTime = data.time;
-                    if (video && data.action === 'play') video.play().catch(e => console.error(e));
-                    else if (video) video.pause();
-                    showNotification("Sincronizado com o host!", "success");
-                    unsync();
-                });
-            });
-        }
-        
-        if (loadVideoBtn) {
-            loadVideoBtn.addEventListener('click', () => {
-                if (isHost && urlInput && urlInput.value.trim()) {
-                    const newUrl = urlInput.value.trim();
-                    const roomDocRef = doc(db, 'rooms', currentRoom);
-                    updateDoc(roomDocRef, {
-                        videoUrl: newUrl,
-                        'status.time': 0,
-                        'status.action': 'play'
-                    });
-                    if (video) {
-                       video.src = newUrl;
-                       video.load();
-                       video.play();
-                    }
-                }
-            });
-        }
-    };
-    
-    if (roomExitButton) {
-        roomExitButton.addEventListener('click', handleLeaveRoom);
-    }
-    
-    if (copyRoomIdBtn) {
-        copyRoomIdBtn.addEventListener('click', () => {
-            if (!roomIdSpan) return;
-            // Usa o método do clipboard padrão e um fallback para navegadores que não o suportam
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(roomIdSpan.textContent).then(() => {
-                    showNotification("ID da sala copiado!", "success");
-                }).catch(err => {
-                    console.error('Erro ao copiar: ', err);
-                    showNotification("Erro ao copiar o ID.", "error");
-                });
-            } else {
-                // Fallback para ambientes que não suportam a API do Clipboard
-                const tempInput = document.createElement('textarea');
-                tempInput.value = roomIdSpan.textContent;
-                document.body.appendChild(tempInput);
-                tempInput.select();
-                try {
-                    document.execCommand('copy');
-                    showNotification("ID da sala copiado!", "success");
-                } catch (err) {
-                    console.error('Erro ao copiar: ', err);
-                    showNotification("Erro ao copiar o ID.", "error");
-                }
-                document.body.removeChild(tempInput);
-            }
-        });
-    }
-
-    if (openDrawerBtn) {
-        openDrawerBtn.addEventListener('click', () => {
-            if (drawer) drawer.classList.add('open');
-            if (drawerBackdrop) drawerBackdrop.style.display = 'block';
-        });
-    }
-
-    if (document.getElementById('close-drawer-btn')) {
-        document.getElementById('close-drawer-btn').addEventListener('click', () => {
-            if (drawer) drawer.classList.remove('open');
-            if (drawerBackdrop) drawerBackdrop.style.display = 'none';
-        });
-    }
-
-    if (drawerBackdrop) {
-        drawerBackdrop.addEventListener('click', () => {
-            if (drawer) drawer.classList.remove('open');
-            if (drawerBackdrop) drawerBackdrop.style.display = 'none';
-        });
-    }
-
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', async () => {
-            showLoading();
-            try {
-                await signOut(auth);
-            } catch (error) {
-                console.error("Erro ao fazer logout:", error);
-                showNotification("Erro ao fazer logout.");
-            } finally {
-                hideLoading();
-            }
-        });
-    }
-
-    if (editProfileBtn) {
-        editProfileBtn.addEventListener('click', () => {
-            if (drawer) drawer.classList.remove('open');
-            if (drawerBackdrop) drawerBackdrop.style.display = 'none';
-            showScreen(profileScreen);
-        });
-    }
-
-    // Inicializa o player de vídeo
-    setupVideoPlayer();
-
-</script>
-
-<!-- Tela de Carregamento -->
-<div id="loading-container" class="loading-container">
-    <div class="loading-dots">
-        <div class="loading-dot"></div>
-        <div class="loading-dot"></div>
-        <div class="loading-dot"></div>
+    <!-- Loading and Error Screen -->
+    <div id="loading-screen" class="fixed inset-0 bg-black flex flex-col items-center justify-center z-50">
+        <div id="loading-spinner" class="loading-icon w-16 h-16 mb-4"></div>
+        <p id="loading-text" class="text-white text-lg font-semibold">A carregar...</p>
+        <p id="error-message" class="text-red-500 text-sm mt-4 hidden"></p>
     </div>
-</div>
-<div id="notification" class="fixed top-5 right-5 text-white py-2 px-5 rounded-lg shadow-lg z-[100] opacity-0" style="transform: translateY(-50px);"></div>
 
-<!-- Drawer (Menu Lateral) -->
-<div id="drawer-backdrop" class="drawer-backdrop"></div>
-<div id="drawer" class="drawer">
-    <div class="flex justify-end p-4">
-        <button id="close-drawer-btn" class="text-white text-2xl">&times;</button>
+    <!-- Notification message (replaces alert()) -->
+    <div id="notification-box" class="fixed top-4 left-1/2 -translate-x-1/2 bg-black text-white py-2 px-4 rounded-lg shadow-lg hidden z-50 border border-white">
+        <p id="notification-message"></p>
     </div>
-    <div class="p-4 flex flex-col items-center text-center">
-        <img id="drawer-profile-pic" class="w-20 h-20 rounded-full object-cover mb-4" src="https://placehold.co/80x80/333/fff?text=P" alt="Profile Picture"/>
-        <h2 id="drawer-username" class="text-xl font-bold"></h2>
-        <p id="drawer-uid" class="text-xs text-neutral-500 break-all"></p>
-        <button id="edit-profile-btn" class="mt-4 w-full p-2 bg-neutral-800 text-white rounded-lg hover:bg-neutral-700 transition">Editar Perfil</button>
-        <button id="logout-btn" class="mt-2 w-full p-2 bg-red-600 text-white rounded-lg hover:bg-red-500 transition">Sair</button>
-    </div>
-    <div class="mt-auto p-4 text-center text-xs text-neutral-600 border-t border-neutral-800">
-        CINE+ 2025 todo direito reservado
-    </div>
-</div>
 
+    <!-- Main App Container -->
+    <div id="app-container" class="min-h-screen flex flex-col justify-center items-center" style="display: none;">
 
-<!-- Tela de Login -->
-<div id="login-screen" class="container">
-    <h1 class="text-4xl font-bold mb-8 text-white">LOGIN</h1>
-    <form id="login-form" class="w-full max-w-sm flex flex-col items-center">
-        <input type="email" name="email" placeholder="E-mail" class="w-full p-3 mb-4 rounded-lg bg-neutral-900 text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-white">
-        <input type="password" name="password" placeholder="Senha" class="w-full p-3 mb-4 rounded-lg bg-neutral-900 text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-white">
-        <button type="submit" class="w-full p-3 mb-4 rounded-lg bg-white text-black font-bold text-lg transition-all hover:bg-neutral-200">ENTRAR</button>
-        <div class="text-center w-full">
-            <span class="text-neutral-500">Ainda não tem conta?</span>
-            <button type="button" id="create-account-btn" class="text-white font-bold">Criar Conta</button>
-        </div>
-    </form>
+        <!-- Header for the main app -->
+        <header class="w-full fixed top-0 left-0 z-40 bg-black border-b border-gray-800">
+            <div class="max-w-6xl mx-auto flex justify-between items-center px-4 py-3">
+                <button id="open-sidebar-btn" aria-label="Abrir menu lateral" class="text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-7 h-7">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+                <h1 class="text-2xl font-bold">CINELEVI</h1>
+                <div class="w-7 h-7"></div> <!-- Spacer for centering -->
+            </div>
+        </header>
 
-    <form id="create-account-form" class="w-full max-w-sm flex-col items-center hidden">
-        <input type="email" name="email" placeholder="E-mail" class="w-full p-3 mb-4 rounded-lg bg-neutral-900 text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-white">
-        <input type="password" name="password" placeholder="Senha" class="w-full p-3 mb-4 rounded-lg bg-neutral-900 text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-white">
-        <button type="submit" class="w-full p-3 mb-4 rounded-lg bg-white text-black font-bold text-lg transition-all hover:bg-neutral-200">CRIAR CONTA</button>
-        <div class="text-center w-full">
-            <span class="text-neutral-500">Já tem conta?</span>
-            <button type="button" id="login-screen-btn" class="text-white font-bold">Entrar</button>
-        </div>
-    </form>
-</div>
-
-<!-- Tela de Perfil -->
-<div id="profile-screen" class="container hidden">
-    <h1 class="text-4xl font-bold mb-8 text-white">CRIAR PERFIL</h1>
-    <form id="profile-form" class="w-full max-w-sm flex flex-col items-center">
-        <img id="profile-pic-preview" class="profile-pic-preview mb-6 hidden" alt="Prévia da foto de perfil">
-        <label for="profile-pic-input" class="w-48 text-center p-3 mb-4 rounded-lg bg-neutral-900 text-white font-bold cursor-pointer transition-all hover:bg-neutral-800">
-            ESCOLHER FOTO
-        </label>
-        <input type="file" id="profile-pic-input" accept="image/*" class="hidden">
-        <input type="text" id="username" name="username" placeholder="Nome de usuário" class="w-full p-3 mb-4 rounded-lg bg-neutral-900 text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-white">
-        <button type="submit" class="w-full p-3 rounded-lg bg-white text-black font-bold text-lg transition-all hover:bg-neutral-200">CONCLUIR</button>
-    </form>
-</div>
-
-<!-- Tela do Lobby -->
-<div id="lobby-screen" class="container hidden p-0">
-    <!-- Header do Lobby -->
-    <header id="lobby-header" class="w-full flex justify-between items-center p-4 bg-black border-b border-neutral-800 sticky top-0 z-40">
-        <button id="open-drawer-btn" class="text-white text-2xl">
-            <i class="fas fa-bars"></i>
-        </button>
-        <h1 class="text-2xl font-bold text-white mx-auto">CINE+</h1>
-        <button id="search-btn" class="text-white text-2xl">
-            <i class="fas fa-search"></i>
-        </button>
-    </header>
-    
-    <!-- Caixa de Pesquisa no Cabeçalho -->
-    <div id="search-box" class="search-box">
-        <form id="search-form" class="w-full relative">
-            <input type="text" id="search-input" placeholder="Pesquisar salas por nome..." class="w-full p-3 rounded-lg bg-neutral-900 text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-white pr-10">
-            <button type="button" id="close-search-btn" class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-white">
-                <i class="fas fa-times"></i>
+        <!-- Sidebar menu with an overlay effect -->
+        <div id="sidebar" class="sidebar fixed top-0 left-0 h-full bg-gray-900 shadow-xl p-6 transition-transform duration-300 ease-in-out flex flex-col items-center">
+            <!-- Close button -->
+            <button id="close-sidebar-btn" aria-label="Fechar menu lateral" class="absolute top-4 right-4 text-white hover:text-gray-400 focus:outline-none">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
             </button>
-        </form>
-    </div>
+            <h2 class="text-xl font-bold mb-6 mt-12">Detalhes do Perfil</h2>
+            <img id="profile-pic-sidebar" src="https://placehold.co/128x128/333/fff?text=P" alt="Profile Picture" class="w-32 h-32 rounded-full border-2 border-white mb-4">
+            <p id="profile-name-sidebar" class="text-lg font-semibold mb-2"></p>
+            <p id="profile-email-sidebar" class="text-sm text-gray-400 mb-8"></p>
 
-    <div id="lobby-main-content" class="w-full h-full overflow-y-auto p-4">
-        <div class="w-full max-w-md mx-auto space-y-4">
-            <!-- Entrar em salas por ID -->
-            <form id="join-room-form" class="relative">
-                <input type="text" id="join-room-input" placeholder="Entrar em uma sala por ID..." class="w-full p-3 rounded-lg bg-neutral-900 text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-white pr-10" />
-                <button type="submit" class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-white transition">
-                    <i class="fas fa-sign-in-alt"></i>
+            <button id="edit-profile-btn" class="w-full bg-gray-800 text-white rounded-md py-2 px-4 mb-4 hover:bg-gray-700 transition-colors">
+                Editar Perfil
+            </button>
+            <button id="logout-btn" class="w-full bg-red-600 text-white rounded-md py-2 px-4 hover:bg-red-500 transition-colors">
+                Sair da Conta
+            </button>
+        </div>
+
+        <!-- Main lobby content -->
+        <div class="app-content flex-grow w-full max-w-6xl mx-auto flex flex-col items-center p-4">
+            
+            <!-- Video player container with custom fullscreen button -->
+            <div class="relative w-full aspect-video bg-black rounded-lg mb-4">
+                <video id="video-player" class="w-full h-full rounded-lg" controls playsinline></video>
+                <button id="fullscreen-btn" class="absolute bottom-4 right-4 bg-gray-800 bg-opacity-50 text-white p-2 rounded-md hover:bg-opacity-75 transition-colors focus:outline-none" aria-label="Entrar em tela cheia">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 16.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Player controls and link input -->
+            <div class="w-full flex flex-col md:flex-row items-center mb-4 space-y-2 md:space-y-0 md:space-x-2">
+                <input id="video-url-input" type="text" placeholder="Cole o link do vídeo MP4 aqui..." class="flex-grow px-4 py-3 bg-gray-800 text-white rounded-md border border-gray-700 focus:outline-none focus:ring-2 focus:ring-white">
+                <button id="load-video-btn" class="shrink-0 px-4 py-3 bg-white text-black font-semibold rounded-md hover:bg-gray-200 transition-colors flex items-center justify-center" disabled>
+                    <span id="load-video-text">Carregar Vídeo</span>
+                    <div id="load-video-loading" class="loading-icon hidden ml-2"></div>
+                </button>
+            </div>
+
+            <!-- Chat -->
+            <div class="w-full bg-gray-900 rounded-lg p-4 flex flex-col h-96">
+                <div id="chat-messages" class="chat-container flex-grow overflow-y-auto space-y-4 mb-4">
+                    <p id="chat-placeholder" class="text-gray-500 text-center">Nenhuma mensagem ainda. Comece a conversar!</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <input id="chat-input" type="text" placeholder="Envie uma mensagem..." class="flex-grow px-4 py-3 bg-gray-800 text-white rounded-md border border-gray-700 focus:outline-none focus:ring-2 focus:ring-white">
+                    <button id="send-chat-btn" class="shrink-0 px-4 py-3 bg-white text-black font-semibold rounded-md hover:bg-gray-200 transition-colors flex items-center justify-center" disabled>
+                        <span id="send-chat-text">Enviar</span>
+                        <div id="send-chat-loading" class="loading-icon hidden ml-2"></div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Authentication Form -->
+    <div id="auth-form" class="flex flex-col items-center justify-center min-h-screen p-4 bg-black" style="display: none;">
+        <div class="w-full max-w-2xl rounded-lg shadow-lg p-6">
+            <h2 id="auth-title" class="text-4xl font-extrabold mb-8 text-center text-white">LOGIN</h2>
+            <form id="login-form" class="space-y-6">
+                <input id="email-input" type="email" placeholder="E-mail" required class="w-full px-4 py-4 bg-gray-800 text-white rounded-md border border-gray-700 focus:outline-none focus:ring-2 focus:ring-white text-lg">
+                <div class="relative">
+                    <input id="password-input" type="password" placeholder="Senha" required class="w-full px-4 py-4 pr-16 bg-gray-800 text-white rounded-md border border-gray-700 focus:outline-none focus:ring-2 focus:ring-white text-lg">
+                    <button type="button" id="toggle-password-visibility-btn" aria-label="Alternar visibilidade da senha" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-white">
+                        <svg id="eye-open-icon" class="h-8 w-8 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        <svg id="eye-closed-icon" class="h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7L.458 12c1.274-4.057 5.064-7 9.542-7a10.05 10.05 0 011.875.175M12 12c-1.657 0-3-1.343-3-3s1.343-3 3-3 3 1.343 3 3-1.343 3-3 3z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21L3 3" />
+                        </svg>
+                    </button>
+                </div>
+                <button type="submit" id="auth-button" class="w-full bg-white text-black font-semibold rounded-md py-4 hover:bg-gray-200 transition-colors flex items-center justify-center text-lg">
+                    <span id="auth-button-text">Entrar</span>
+                    <div id="auth-button-loading" class="loading-icon hidden ml-2"></div>
                 </button>
             </form>
-
-            <!-- Salas Públicas -->
-            <div class="w-full">
-                <h2 class="text-xl font-bold mb-4 text-white">Salas Públicas</h2>
-                <div id="lobby-rooms-list" class="w-full space-y-2">
-                    <!-- Salas serão adicionadas aqui via JavaScript -->
-                </div>
-            </div>
+            <p class="text-sm text-center text-gray-400 mt-4">
+                Não tem uma conta? <button id="toggle-auth-btn" class="text-white hover:underline focus:outline-none">Cadastre-se</button>
+            </p>
         </div>
-        
-        <button id="create-room-btn-lobby" class="float-button pulse">
-            <i class="fas fa-plus"></i>
-        </button>
     </div>
-</div>
 
-<!-- Tela de Criar Sala -->
-<div id="create-room-screen" class="container hidden p-0">
-    <header class="w-full flex justify-between items-center p-4 bg-black border-b border-neutral-800 sticky top-0 z-40">
-        <button id="create-room-back-btn" class="text-white text-2xl"><i class="fas fa-arrow-left"></i></button>
-        <h1 class="text-2xl font-bold text-white mx-auto">Criar Sala</h1>
-        <div class="w-8"></div>
-    </header>
-    <div class="w-full h-full overflow-y-auto p-4">
-        <form id="create-room-form" class="w-full max-w-md mx-auto space-y-6">
-            <div>
-                <label for="tmdb-search-input" class="block text-sm font-medium text-neutral-400 mb-2">Pesquisar Título (Opcional)</label>
-                <input type="text" id="tmdb-search-input" placeholder="Pesquisar por filme ou série..." class="w-full p-3 rounded-lg bg-neutral-900 text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-white">
-                <div id="tmdb-search-results" class="tmdb-search-results mt-2 space-y-2"></div>
-            </div>
-            <div>
-                <label for="create-room-name-input" class="block text-sm font-medium text-neutral-400 mb-2">Nome da Sala (Obrigatório)</label>
-                <input type="text" id="create-room-name-input" placeholder="Nome da sala..." class="w-full p-3 rounded-lg bg-neutral-900 text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-white" required>
-            </div>
-            <div>
-                <label for="create-room-banner-input" class="block text-sm font-medium text-neutral-400 mb-2">URL do Banner (Opcional)</label>
-                <input type="url" id="create-room-banner-input" placeholder="URL da imagem de banner..." class="w-full p-3 rounded-lg bg-neutral-900 text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-white">
-            </div>
-            <!-- CAMPO ADICIONADO PARA A URL DO VÍDEO -->
-            <div>
-                <label for="create-room-video-url-input" class="block text-sm font-medium text-neutral-400 mb-2">URL do Vídeo MP4 (Opcional)</label>
-                <input type="url" id="create-room-video-url-input" placeholder="Cole o link direto do vídeo aqui..." class="w-full p-3 rounded-lg bg-neutral-900 text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-white">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-neutral-400 mb-2">Visibilidade</label>
-                <div class="flex gap-4">
-                    <label class="flex-1 p-3 rounded-lg bg-neutral-900 transition-colors duration-200 ease-in-out has-[:checked]:bg-neutral-800 cursor-pointer">
-                        <input type="radio" id="visibility-public" name="visibility" value="public" class="mr-2" checked> Pública
+    <!-- Profile Form (appears after sign-up) -->
+    <div id="profile-form" class="flex-col items-center justify-center min-h-screen p-4" style="display: none;">
+        <h1 class="text-3xl font-bold mb-8 text-center text-white">Configure seu Perfil</h1>
+        <div class="w-full max-w-sm bg-gray-900 rounded-lg shadow-lg p-6">
+            <form id="setup-profile-form" class="space-y-4">
+                <div class="flex flex-col items-center mb-4">
+                    <img id="preview-profile-pic" src="https://placehold.co/128x128/333/fff?text=P" alt="Profile Picture" class="w-32 h-32 rounded-full border-2 border-white mb-4">
+                    <label for="profile-pic-upload" class="bg-gray-800 text-white py-2 px-4 rounded-md cursor-pointer hover:bg-gray-700 transition-colors">
+                        Escolher Foto de Perfil
                     </label>
-                    <label class="flex-1 p-3 rounded-lg bg-neutral-900 transition-colors duration-200 ease-in-out has-[:checked]:bg-neutral-800 cursor-pointer">
-                        <input type="radio" id="visibility-private" name="visibility" value="private" class="mr-2"> Privada
-                    </label>
+                    <input type="file" id="profile-pic-upload" accept="image/*" class="hidden">
                 </div>
-            </div>
-            <button type="submit" class="w-full p-3 rounded-lg bg-white text-black font-bold text-lg transition-all hover:bg-neutral-200">Criar Sala</button>
-        </form>
-    </div>
-</div>
-
-<!-- Tela da Sala -->
-<div id="room-screen" class="container hidden">
-    <div class="flex flex-col lg:flex-row gap-4 h-full">
-        <!-- Player e Controles -->
-        <div class="flex-grow lg:w-2/3 space-y-2 flex flex-col">
-            <div class="bg-neutral-900 p-4 rounded-xl flex items-center justify-between flex-wrap gap-4">
-                <div class="flex items-center gap-3">
-                    <h2 id="room-title" class="text-xl font-semibold text-white"></h2>
-                    <div class="flex items-center gap-2">
-                        <span id="room-id-span" class="font-mono text-xs text-neutral-400 bg-neutral-800 px-2 py-1 rounded"></span>
-                        <button id="copy-room-id-btn" class="text-neutral-500 hover:text-white transition"><i class="fas fa-copy"></i></button>
-                    </div>
-                </div>
-                <div class="flex items-center gap-4">
-                    <button id="online-count-btn" class="text-xs bg-neutral-800 hover:bg-neutral-700 text-neutral-400 px-2 py-1 rounded-full flex items-center gap-1"></button>
-                    <button id="room-exit-button" class="bg-red-600 hover:bg-red-700 text-sm py-1.5 px-3 rounded-lg flex items-center gap-1 transition"><i class="fas fa-sign-out-alt"></i>Sair</button>
-                </div>
-            </div>
-            <div id="video-container" class="video-container rounded-xl shadow-lg aspect-video">
-                <div class="relative flex items-center gap-2 p-2 bg-neutral-800 rounded-lg" style="display: none;" id="url-input-container">
-                    <input type="url" id="url-input" placeholder="Host: cole o link do vídeo (MP4) aqui..." class="flex-grow bg-transparent text-white placeholder-neutral-500 focus:outline-none" />
-                    <button id="load-video-btn" class="bg-white text-black font-bold text-xs py-1.5 px-3 rounded-lg hover:bg-neutral-200 transition">Carregar Vídeo</button>
-                </div>
-                <video id="video" class="w-full h-full bg-black" preload="metadata" playsinline></video>
-                <div class="player-controls flex flex-col lg:flex-row items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <button id="rewind-btn" class="text-white hover:bg-neutral-700/50 p-2 rounded-full"><i class="fas fa-undo"></i></button>
-                        <button id="play-pause-btn" class="text-white hover:bg-neutral-700/50 p-2 rounded-full"><i class="fas fa-play"></i></button>
-                        <button id="forward-btn" class="text-white hover:bg-neutral-700/50 p-2 rounded-full"><i class="fas fa-redo"></i></button>
-                        <button id="force-sync-btn" class="text-white text-xs bg-neutral-800 hover:bg-neutral-700 px-3 py-2 rounded-lg transition">Sincronizar</button>
-                    </div>
-                    <div class="progress-container w-full lg:w-auto flex-1 mx-4">
-                        <div class="progress-bar" id="progress-bar"></div>
-                    </div>
-                    <div class="flex items-center justify-between lg:justify-end w-full lg:w-auto mt-2 lg:mt-0">
-                        <div class="flex items-center gap-2 text-xs text-white">
-                            <span id="current-time">0:00</span> / <span id="duration">0:00</span>
-                        </div>
-                        <button id="fullscreen-btn" class="text-white hover:bg-neutral-700/50 p-2 rounded-full ml-4"><i class="fas fa-expand"></i></button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Chat -->
-        <div class="w-full lg:w-1/3 flex flex-col bg-neutral-900 rounded-lg shadow-lg border border-neutral-800" style="min-height: 400px; max-height: 70vh;">
-            <div class="flex items-center justify-between p-4 border-b border-neutral-800">
-                <h3 class="text-lg font-semibold flex items-center gap-2"><i class="fas fa-comments text-neutral-400"></i>Chat</h3>
-            </div>
-            <div id="chat-messages-box" class="chat-messages-box flex-grow p-4 overflow-y-auto space-y-3"></div>
-            <form id="chat-form" class="p-3 border-t border-neutral-800">
-                <div class="relative">
-                    <input type="text" id="msg-input" placeholder="Digite sua mensagem..." class="w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 pr-12" required/>
-                    <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white p-1"><i class="fas fa-paper-plane"></i></button>
-                </div>
+                <input id="display-name-input" type="text" placeholder="Seu nome ou apelido" required class="w-full px-4 py-3 bg-gray-800 text-white rounded-md border border-gray-700 focus:outline-none focus:ring-2 focus:ring-white">
+                <button type="submit" id="setup-profile-btn" class="w-full bg-white text-black font-semibold rounded-md py-3 hover:bg-gray-200 transition-colors flex items-center justify-center">
+                    <span id="setup-profile-text">Salvar e Continuar</span>
+                    <div id="setup-profile-loading" class="loading-icon hidden ml-2"></div>
+                </button>
             </form>
         </div>
     </div>
-</div>
 
+    <!-- Logout Confirmation Modal -->
+    <div id="logout-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="bg-gray-900 p-6 rounded-lg shadow-xl text-center">
+            <h3 class="text-xl font-bold mb-4">Tem certeza que deseja sair?</h3>
+            <div class="flex justify-center space-x-4">
+                <button id="confirm-logout-btn" class="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-500 transition-colors">Sair</button>
+                <button id="cancel-logout-btn" class="px-6 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-500 transition-colors">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection, addDoc, query, orderBy, serverTimestamp, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+        
+        window.onload = function() {
+            // Environment variables
+            const appId = 'CINELEVI';
+            const firebaseConfig = {
+                apiKey: "AIzaSyAJ5QedjWWrAvyOfojHAGNpj7MJT3asDms",
+                authDomain: "cinewatch-a5a43.firebaseapp.com",
+                projectId: "cinewatch-a5a43",
+                storageBucket: "cinewatch-a5a43.appspot.com",
+                messagingSenderId: "375791940451",
+                appId: "1:375791940451:web:a5ec82a1dfb5a1e2019956"
+            };
+
+            // ImgBB API Key and URL
+            const imgbbAPIKey = '9a792241a6220ed358215ad0c1e4162e';
+            const imgbbUploadURL = `https://api.imgbb.com/1/upload?key=${imgbbAPIKey}`;
+
+            // References to DOM elements
+            const loadingScreen = document.getElementById('loading-screen');
+            const loadingText = document.getElementById('loading-text');
+            const errorMessage = document.getElementById('error-message');
+            const appContainer = document.getElementById('app-container');
+            const authForm = document.getElementById('auth-form');
+            const profileForm = document.getElementById('profile-form');
+            const authButton = document.getElementById('auth-button');
+            const toggleAuthBtn = document.getElementById('toggle-auth-btn');
+            const authTitle = document.getElementById('auth-title');
+            const emailInput = document.getElementById('email-input');
+            const passwordInput = document.getElementById('password-input');
+            const setupProfileForm = document.getElementById('setup-profile-form');
+            const displayNameInput = document.getElementById('display-name-input');
+            const profilePicUpload = document.getElementById('profile-pic-upload');
+            const previewProfilePic = document.getElementById('preview-profile-pic');
+            const setupProfileBtn = document.getElementById('setup-profile-btn');
+            const videoPlayer = document.getElementById('video-player');
+            const videoUrlInput = document.getElementById('video-url-input');
+            const loadVideoBtn = document.getElementById('load-video-btn');
+            const chatMessages = document.getElementById('chat-messages');
+            const chatInput = document.getElementById('chat-input');
+            const sendChatBtn = document.getElementById('send-chat-btn');
+            const openSidebarBtn = document.getElementById('open-sidebar-btn');
+            const closeSidebarBtn = document.getElementById('close-sidebar-btn');
+            const sidebar = document.getElementById('sidebar');
+            const profileNameSidebar = document.getElementById('profile-name-sidebar');
+            const profileEmailSidebar = document.getElementById('profile-email-sidebar');
+            const profilePicSidebar = document.getElementById('profile-pic-sidebar');
+            const logoutBtn = document.getElementById('logout-btn');
+            const togglePasswordVisibilityBtn = document.getElementById('toggle-password-visibility-btn');
+            const eyeOpenIcon = document.getElementById('eye-open-icon');
+            const eyeClosedIcon = document.getElementById('eye-closed-icon');
+            const logoutModal = document.getElementById('logout-modal');
+            const confirmLogoutBtn = document.getElementById('confirm-logout-btn');
+            const cancelLogoutBtn = document.getElementById('cancel-logout-btn');
+            const fullscreenBtn = document.getElementById('fullscreen-btn');
+
+            // References for loading states
+            const authButtonText = document.getElementById('auth-button-text');
+            const authButtonLoading = document.getElementById('auth-button-loading');
+            const setupProfileText = document.getElementById('setup-profile-text');
+            const setupProfileLoading = document.getElementById('setup-profile-loading');
+            const loadVideoText = document.getElementById('load-video-text');
+            const loadVideoLoading = document.getElementById('load-video-loading');
+            const sendChatText = document.getElementById('send-chat-text');
+            const sendChatLoading = document.getElementById('send-chat-loading');
+            
+            // App state and room document reference
+            let currentRoomDocRef = null;
+            let currentUserData = null;
+            let isSetupMode = false;
+            let renderedMessageIds = new Set(); // To prevent message duplicates on re-render
+            let chatMessagesInitialized = false;
+
+            // Debounce function to limit rapid updates
+            function debounce(func, timeout = 500) {
+                let timer;
+                return (...args) => {
+                    clearTimeout(timer);
+                    timer = setTimeout(() => { func.apply(this, args); }, timeout);
+                };
+            }
+
+            // Function to show notifications
+            function showNotification(message) {
+                const notificationBox = document.getElementById('notification-box');
+                const notificationMessage = document.getElementById('notification-message');
+                notificationMessage.textContent = message;
+                notificationBox.classList.remove('hidden');
+                setTimeout(() => {
+                    notificationBox.classList.add('hidden');
+                }, 3000);
+            }
+
+            // Function to toggle a button's loading state
+            function setButtonLoading(button, textSpan, loadingIcon, isLoading) {
+                if (isLoading) {
+                    textSpan.classList.add('hidden');
+                    loadingIcon.classList.remove('hidden');
+                    button.disabled = true;
+                } else {
+                    textSpan.classList.remove('hidden');
+                    loadingIcon.classList.add('hidden');
+                    button.disabled = false;
+                }
+            }
+
+            // Function to load and show the correct screen
+            function showScreen(screenId) {
+                authForm.style.display = 'none';
+                profileForm.style.display = 'none';
+                appContainer.style.display = 'none';
+                loadingScreen.classList.add('hidden');
+
+                if (screenId === 'auth') {
+                    authForm.style.display = 'flex';
+                } else if (screenId === 'profile') {
+                    profileForm.style.display = 'flex';
+                } else if (screenId === 'app') {
+                    appContainer.style.display = 'flex';
+                }
+            }
+
+            // --- Initialize Firebase and handle loading state ---
+            let auth, db;
+            try {
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+            } catch (error) {
+                loadingText.textContent = "Erro na inicialização.";
+                errorMessage.textContent = `Erro: ${error.message}`;
+                errorMessage.classList.remove('hidden');
+                return; // Prevents the rest of the code from running
+            }
+
+            // --- Authentication Logic ---
+            toggleAuthBtn.addEventListener('click', () => {
+                isSetupMode = !isSetupMode;
+                if (isSetupMode) {
+                    authTitle.textContent = 'CADASTRAR';
+                    authButtonText.textContent = 'Cadastrar';
+                    toggleAuthBtn.textContent = 'Já tem uma conta? Entrar';
+                } else {
+                    authTitle.textContent = 'LOGIN';
+                    authButtonText.textContent = 'Entrar';
+                    toggleAuthBtn.textContent = 'Não tem uma conta? Cadastre-se';
+                }
+            });
+
+            document.getElementById('login-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = emailInput.value;
+                const password = passwordInput.value;
+                setButtonLoading(authButton, authButtonText, authButtonLoading, true);
+
+                try {
+                    if (isSetupMode) {
+                        await createUserWithEmailAndPassword(auth, email, password);
+                    } else {
+                        await signInWithEmailAndPassword(auth, email, password);
+                    }
+                } catch (error) {
+                    showNotification(`Erro: ${error.message}`);
+                    console.error(error);
+                } finally {
+                    setButtonLoading(authButton, authButtonText, authButtonLoading, false);
+                }
+            });
+
+            // Toggle password visibility
+            togglePasswordVisibilityBtn.addEventListener('click', () => {
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    eyeOpenIcon.classList.remove('hidden');
+                    eyeClosedIcon.classList.add('hidden');
+                } else {
+                    passwordInput.type = 'password';
+                    eyeOpenIcon.classList.add('hidden');
+                    eyeClosedIcon.classList.remove('hidden');
+                }
+            });
+
+
+            // --- Profile Setup Logic ---
+            profilePicUpload.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        previewProfilePic.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            setupProfileForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const displayName = displayNameInput.value;
+                const profilePicFile = profilePicUpload.files[0];
+                setButtonLoading(setupProfileBtn, setupProfileText, setupProfileLoading, true);
+
+                try {
+                    const user = auth.currentUser;
+                    let photoURL = '';
+
+                    if (profilePicFile) {
+                        try {
+                            const formData = new FormData();
+                            formData.append('image', profilePicFile);
+                            const response = await fetch(imgbbUploadURL, {
+                                method: 'POST',
+                                body: formData
+                            });
+                            const result = await response.json();
+                            if (result.success) {
+                                photoURL = result.data.url;
+                            } else {
+                                throw new Error('Falha ao fazer upload da imagem para o ImgBB');
+                            }
+                        } catch (imgbbError) {
+                            console.error("Erro no upload para ImgBB:", imgbbError);
+                            showNotification("Erro ao enviar a imagem. O perfil será salvo sem foto.");
+                        }
+                    }
+
+                    const userDocRef = doc(db, 'users', user.uid);
+                    await setDoc(userDocRef, {
+                        displayName: displayName || 'Usuário Cinelevi',
+                        photoURL: photoURL || '',
+                        createdAt: serverTimestamp()
+                    });
+
+                    showNotification('Perfil salvo com sucesso!');
+                    showScreen('app');
+                } catch (error) {
+                    showNotification(`Erro ao salvar perfil: ${error.message}`);
+                    console.error(error);
+                } finally {
+                    setButtonLoading(setupProfileBtn, setupProfileText, setupProfileLoading, false);
+                }
+            });
+
+            // --- Sidebar Logic ---
+            openSidebarBtn.addEventListener('click', () => {
+                sidebar.classList.add('open');
+            });
+
+            closeSidebarBtn.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+            });
+
+            logoutBtn.addEventListener('click', () => {
+                logoutModal.classList.remove('hidden');
+            });
+
+            confirmLogoutBtn.addEventListener('click', async () => {
+                logoutModal.classList.add('hidden');
+                try {
+                    await signOut(auth);
+                    showNotification('Sessão encerrada.');
+                } catch (error) {
+                    showNotification(`Erro ao sair: ${error.message}`);
+                    console.error(error);
+                }
+            });
+
+            cancelLogoutBtn.addEventListener('click', () => {
+                logoutModal.classList.add('hidden');
+            });
+
+            // Custom fullscreen button logic
+            fullscreenBtn.addEventListener('click', () => {
+                if (videoPlayer.requestFullscreen) {
+                    videoPlayer.requestFullscreen();
+                } else if (videoPlayer.webkitRequestFullscreen) { /* Safari */
+                    videoPlayer.webkitRequestFullscreen();
+                } else if (videoPlayer.msRequestFullscreen) { /* IE11 */
+                    videoPlayer.msRequestFullscreen();
+                }
+            });
+
+            // --- Lobby and Sync Logic ---
+            loadVideoBtn.addEventListener('click', async () => {
+                if (!currentRoomDocRef) {
+                    showNotification('Aguarde, a sala ainda não está pronta.');
+                    return;
+                }
+                const url = videoUrlInput.value.trim();
+                if (!url.toLowerCase().endsWith('.mp4')) {
+                    showNotification('Por favor, insira um link de vídeo MP4 válido.');
+                    return;
+                }
+                setButtonLoading(loadVideoBtn, loadVideoText, loadVideoLoading, true);
+                
+                try {
+                    await setDoc(currentRoomDocRef, {
+                        videoURL: url,
+                        isPlaying: true,
+                        timestamp: 0,
+                        lastUpdatedBy: auth.currentUser.uid,
+                        lastUpdateTimestamp: new Date().getTime()
+                    });
+                    showNotification('Vídeo carregado com sucesso!');
+                } catch (error) {
+                    showNotification(`Erro ao carregar vídeo: ${error.message}`);
+                    console.error(error);
+                } finally {
+                    setButtonLoading(loadVideoBtn, loadVideoText, loadVideoLoading, false);
+                }
+            });
+
+            // Sync video player state with Firestore using debounce
+            const updateRoomState = debounce(async (state) => {
+                if (!currentRoomDocRef || !auth.currentUser) return;
+                try {
+                    await updateDoc(currentRoomDocRef, {
+                        ...state,
+                        lastUpdatedBy: auth.currentUser.uid,
+                        lastUpdateTimestamp: new Date().getTime()
+                    });
+                } catch(e) {
+                    console.error("Erro ao sincronizar estado do player:", e);
+                }
+            });
+
+            videoPlayer.addEventListener('play', () => updateRoomState({ isPlaying: true, timestamp: videoPlayer.currentTime }));
+            videoPlayer.addEventListener('pause', () => updateRoomState({ isPlaying: false, timestamp: videoPlayer.currentTime }));
+            videoPlayer.addEventListener('seeked', () => updateRoomState({ timestamp: videoPlayer.currentTime }));
+            
+            // --- Chat Logic ---
+            document.getElementById('send-chat-btn').addEventListener('click', async () => {
+                if (!currentRoomDocRef) {
+                    showNotification('Aguarde, o chat ainda não está pronto.');
+                    return;
+                }
+                const messageText = chatInput.value.trim();
+                if (messageText === '') return;
+                setButtonLoading(sendChatBtn, sendChatText, sendChatLoading, true);
+                
+                try {
+                    const roomChatCollectionRef = collection(db, 'rooms', appId, 'chat');
+                    await addDoc(roomChatCollectionRef, {
+                        text: messageText,
+                        senderName: currentUserData.displayName || 'Anônimo',
+                        senderId: auth.currentUser.uid,
+                        profilePicUrl: currentUserData.photoURL || '',
+                        timestamp: serverTimestamp()
+                    });
+                    chatInput.value = '';
+                    chatInput.focus();
+                } catch (error) {
+                    showNotification(`Erro ao enviar mensagem: ${error.message}`);
+                    console.error(error);
+                } finally {
+                    setButtonLoading(sendChatBtn, sendChatText, sendChatLoading, false);
+                }
+            });
+
+            // Allows sending a message by pressing Enter
+            chatInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    document.getElementById('send-chat-btn').click();
+                }
+            });
+
+            // --- Main Logic: Observe authentication state ---
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    const userId = user.uid;
+                    const userDocRef = doc(db, 'users', userId);
+                    
+                    try {
+                        const userDoc = await getDoc(userDocRef);
+                        if (!userDoc.exists()) {
+                            // Create a default profile if one does not exist
+                            await setDoc(userDocRef, {
+                                displayName: `Usuário ${user.email.split('@')[0]}`,
+                                photoURL: '',
+                                createdAt: serverTimestamp()
+                            });
+                            currentUserData = (await getDoc(userDocRef)).data();
+                            showNotification('Perfil criado automaticamente. Clique em "Editar Perfil" para personalizá-lo.');
+                        } else {
+                            currentUserData = userDoc.data();
+                        }
+
+                        // Initialize the room and chat
+                        currentRoomDocRef = doc(db, 'rooms', appId);
+                        
+                        // Create the room document if it does not exist
+                        const roomDoc = await getDoc(currentRoomDocRef);
+                        if (!roomDoc.exists()) {
+                            await setDoc(currentRoomDocRef, {
+                                videoURL: "",
+                                isPlaying: false,
+                                timestamp: 0,
+                                lastUpdatedBy: "",
+                                lastUpdateTimestamp: 0
+                            });
+                        }
+
+                        // Observe the room state in real-time
+                        onSnapshot(currentRoomDocRef, (doc) => {
+                            const roomData = doc.data();
+                            if (roomData) {
+                                if (videoPlayer.src !== roomData.videoURL) {
+                                    videoPlayer.src = roomData.videoURL;
+                                }
+                                
+                                // Sync playback state
+                                const currentTime = videoPlayer.currentTime;
+                                const remoteTime = roomData.timestamp;
+                                const timeDifference = Math.abs(currentTime - remoteTime);
+
+                                if (roomData.isPlaying && timeDifference > 2 && roomData.lastUpdatedBy !== user.uid) {
+                                    videoPlayer.currentTime = remoteTime;
+                                    showNotification(`Sincronizando com o host. Tempo: ${Math.floor(remoteTime)}s`);
+                                    videoPlayer.play();
+                                } else if (!roomData.isPlaying && roomData.lastUpdatedBy !== user.uid) {
+                                    videoPlayer.pause();
+                                }
+                            }
+                        }, (error) => {
+                            console.error("Erro ao observar a sala:", error);
+                            showNotification("Erro ao conectar à sala. Verifique suas permissões.");
+                        });
+                        
+                        // Observe chat messages in real-time
+                        const roomChatCollectionRef = collection(db, 'rooms', appId, 'chat');
+                        const q = query(roomChatCollectionRef, orderBy('timestamp'));
+                        
+                        onSnapshot(q, (snapshot) => {
+                            if (!chatMessagesInitialized) {
+                                chatMessages.innerHTML = '';
+                                renderedMessageIds.clear(); // Clear the set on initial load
+                                chatMessagesInitialized = true;
+                            }
+                            
+                            const chatPlaceholder = document.getElementById('chat-placeholder');
+                            if (chatPlaceholder) {
+                                if (snapshot.size > 0) {
+                                    chatPlaceholder.classList.add('hidden');
+                                } else {
+                                    chatPlaceholder.classList.remove('hidden');
+                                }
+                            }
+                            
+                            snapshot.docChanges().forEach((change) => {
+                                if (change.type === "added") {
+                                    const messageId = change.doc.id;
+                                    if (!renderedMessageIds.has(messageId)) {
+                                        const message = change.doc.data();
+                                        const isMyMessage = message.senderId === user.uid;
+                                        const messageElement = document.createElement('div');
+                                        messageElement.classList.add('flex', 'items-start', 'space-x-3', 'mb-2');
+                                        
+                                        const messageBubble = document.createElement('div');
+                                        messageBubble.classList.add('p-3', 'rounded-lg', 'max-w-[75%]', 'break-words');
+                                        
+                                        if (isMyMessage) {
+                                            messageBubble.classList.add('bg-white', 'text-black', 'ml-auto');
+                                        } else {
+                                            messageBubble.classList.add('bg-gray-700', 'text-white');
+                                        }
+                                        
+                                        const senderName = document.createElement('p');
+                                        senderName.classList.add('text-xs', 'font-bold', 'mb-1', isMyMessage ? 'text-right' : 'text-left');
+                                        senderName.textContent = message.senderName;
+                                        
+                                        const messageText = document.createElement('p');
+                                        messageText.textContent = message.text;
+                                        
+                                        messageBubble.appendChild(senderName);
+                                        messageBubble.appendChild(messageText);
+                                        messageElement.appendChild(messageBubble);
+                                        
+                                        chatMessages.appendChild(messageElement);
+                                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                                        renderedMessageIds.add(messageId);
+                                    }
+                                }
+                            });
+                        }, (error) => {
+                             console.error("Erro ao observar o chat:", error);
+                             showNotification("Erro ao conectar ao chat. Verifique suas permissões.");
+                        });
+                        
+                        // Enable buttons and show the app screen
+                        loadVideoBtn.disabled = false;
+                        sendChatBtn.disabled = false;
+                        showScreen('app');
+
+                    } catch (error) {
+                        console.error("Erro no fluxo de autenticação:", error);
+                        showNotification(`Erro ao carregar dados do usuário: ${error.message}`);
+                        showScreen('auth'); // Return to the authentication screen
+                    }
+
+                } else {
+                    // User is logged out
+                    showScreen('auth');
+                }
+            });
+        };
+    </script>
 </body>
 </html>
